@@ -20,7 +20,7 @@ export default function CloseIssueModal({
   open: boolean;
   onClose: () => void;
   issue: Issue | undefined;
-  handleUpdateIssues?: (issue: Issue) => void;
+  handleUpdateIssues?: (issue: Issue | undefined) => void;
 }) {
   const [isClosing, setIsClosing] = useState(false);
   const { closeIssue } = useCloseIssue();
@@ -38,7 +38,7 @@ export default function CloseIssueModal({
         },
       });
 
-      handleUpdateIssues(updatedIssue.data?.closeIssue);
+      handleUpdateIssues?.(updatedIssue?.data?.closeIssue);
 
       onClose();
     } catch (error) {

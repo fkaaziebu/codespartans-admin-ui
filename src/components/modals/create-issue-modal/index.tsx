@@ -37,7 +37,7 @@ export default function CreateIssueModal({
   onClose: () => void;
   reviewId: string;
   questionNumber: number | null;
-  handleUpdateIssues: (issue: Issue) => void;
+  handleUpdateIssues: (issue: Issue | undefined) => void;
 }) {
   const {
     register,
@@ -70,7 +70,7 @@ export default function CreateIssueModal({
       },
     });
 
-    handleUpdateIssues(issue.data?.addReviewIssue);
+    handleUpdateIssues(issue?.data?.addReviewIssue);
 
     reset();
     onClose();

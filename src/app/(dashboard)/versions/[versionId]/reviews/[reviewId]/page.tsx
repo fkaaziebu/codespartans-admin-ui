@@ -76,9 +76,13 @@ export default function ReviewDetailPage() {
     }
   };
 
-  const handleUpdateIssues = (issue: Issue) => {
-    const filterredIssues = issues.filter((iss) => iss.id !== issue.id);
-    setIssues([...(filterredIssues || []), issue]);
+  const handleUpdateIssues = (issue: Issue | undefined) => {
+    const filterredIssues = issues.filter((iss) => iss?.id !== issue?.id);
+    setIssues(
+      [...(filterredIssues || []), issue].filter(
+        (issue) => issue !== undefined,
+      ),
+    );
   };
 
   const getStatusBadge = (status: ReviewStatusType | undefined) => {
