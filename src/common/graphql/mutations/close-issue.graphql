@@ -1,0 +1,7 @@
+mutation CloseIssue($issueId: String!) {
+    closeIssue(issueId: $issueId) {
+        id
+        description
+        status
+    }
+}

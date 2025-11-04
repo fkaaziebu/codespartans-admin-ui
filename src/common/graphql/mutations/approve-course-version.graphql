@@ -1,0 +1,6 @@
+mutation ApproveCourseVersion($versionId: String!) {
+    approveCourseVersion(versionId: $versionId) {
+        id
+        status
+    }
+}

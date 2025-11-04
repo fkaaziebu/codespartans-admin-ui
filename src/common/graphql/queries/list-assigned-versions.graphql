@@ -1,0 +1,18 @@
+query ListAssignedVersions {
+    listAssignedVersions {
+        edges {
+            node {
+                id
+                status
+                course {
+                    title
+                }
+                review_request {
+                    inserted_at
+                }
+                total_questions
+                total_reviews
+            }
+        }
+    }
+}

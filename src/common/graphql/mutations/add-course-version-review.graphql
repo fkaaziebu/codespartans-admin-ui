@@ -1,0 +1,10 @@
+mutation AddCourseVersionReview(
+    $versionId: String!
+    $reviewInfo: ReviewInfoInput!
+) {
+    addCourseVersionReview(versionId: $versionId, reviewInfo: $reviewInfo) {
+        id
+        title
+        message
+    }
+}

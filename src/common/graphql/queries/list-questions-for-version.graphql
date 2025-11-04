@@ -1,0 +1,27 @@
+query ListQuestionsForVersion(
+    $versionId: String!
+    $searchTerm: String
+    $pagination: PaginationInput
+) {
+    listQuestionsForVersion(
+        versionId: $versionId
+        searchTerm: $searchTerm
+        pagination: $pagination
+    ) {
+        edges {
+            node {
+                id
+                correct_answer
+                description
+                difficulty
+                estimated_time_in_ms
+                hints
+                options
+                question_number
+                solution_steps
+                tags
+                type
+            }
+        }
+    }
+}

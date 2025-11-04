@@ -1,0 +1,7 @@
+mutation AddReviewIssue($reviewId: String!, $issueInfo: IssueInfoInput!) {
+    addReviewIssue(reviewId: $reviewId, issueInfo: $issueInfo) {
+        id
+        description
+        status
+    }
+}
