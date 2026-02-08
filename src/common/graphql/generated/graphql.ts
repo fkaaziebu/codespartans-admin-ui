@@ -25,6 +25,7 @@ export type Admin = {
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   organization?: Maybe<Organization>;
+  status: AdminStatusType;
 };
 
 export type AdminConnection = {
@@ -41,6 +42,7 @@ export type AdminLoginResponse = {
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   organization?: Maybe<Organization>;
+  status: AdminStatusType;
   token: Scalars['String']['output'];
 };
 
@@ -51,6 +53,7 @@ export type AdminResponse = {
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   organization?: Maybe<Organization>;
+  status: AdminStatusType;
   total_approved_course_versions: Scalars['Float']['output'];
   total_course_versions: Scalars['Float']['output'];
 };
@@ -60,6 +63,12 @@ export type AdminResponseEdge = {
   cursor: Scalars['String']['output'];
   node: AdminResponse;
 };
+
+/** Admin status */
+export enum AdminStatusType {
+  Active = 'ACTIVE',
+  Inactive = 'INACTIVE'
+}
 
 export type Cart = {
   __typename?: 'Cart';
@@ -109,20 +118,26 @@ export type Course = {
   description: Scalars['String']['output'];
   domains: Array<DomainType>;
   id: Scalars['ID']['output'];
+  inserted_at: Scalars['DateTime']['output'];
   instructor?: Maybe<Instructor>;
   level: LevelType;
   organization?: Maybe<Organization>;
   price: Scalars['Float']['output'];
   subscribed_students?: Maybe<Array<Student>>;
   title: Scalars['String']['output'];
+  updated_at: Scalars['DateTime']['output'];
   versions?: Maybe<Array<Version>>;
 };
 
 export type CourseConnection = {
   __typename?: 'CourseConnection';
   count: Scalars['Int']['output'];
-  edges: Array<CourseTypeClassEdge>;
+  edges: Array<CourseResponseEdge>;
   pageInfo: PageInfo;
+};
+
+export type CourseFilterInput = {
+  is_subscribed?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type CourseInfoInput = {
@@ -135,10 +150,34 @@ export type CourseInfoInput = {
   title: Scalars['String']['input'];
 };
 
-export type CourseTypeClassEdge = {
-  __typename?: 'CourseTypeClassEdge';
+export type CourseResponse = {
+  __typename?: 'CourseResponse';
+  approved_version?: Maybe<Version>;
+  avatar_url: Scalars['String']['output'];
+  categories?: Maybe<Array<Category>>;
+  coupons?: Maybe<Array<Coupon>>;
+  currency: CurrencyType;
+  description: Scalars['String']['output'];
+  domains: Array<DomainType>;
+  estimated_duration: Scalars['Float']['output'];
+  id: Scalars['ID']['output'];
+  inserted_at: Scalars['DateTime']['output'];
+  instructor?: Maybe<Instructor>;
+  is_subscribed: Scalars['Boolean']['output'];
+  level: LevelType;
+  organization?: Maybe<Organization>;
+  price: Scalars['Float']['output'];
+  subscribed_students?: Maybe<Array<Student>>;
+  title: Scalars['String']['output'];
+  total_questions: Scalars['Float']['output'];
+  updated_at: Scalars['DateTime']['output'];
+  versions?: Maybe<Array<Version>>;
+};
+
+export type CourseResponseEdge = {
+  __typename?: 'CourseResponseEdge';
   cursor: Scalars['String']['output'];
-  node: Course;
+  node: CourseResponse;
 };
 
 /** Currency */
@@ -161,6 +200,7 @@ export type Instructor = {
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   organizations?: Maybe<Array<Organization>>;
+  status: InstructorStatusType;
 };
 
 export type InstructorConnection = {
@@ -177,6 +217,7 @@ export type InstructorLoginResponse = {
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   organizations?: Maybe<Array<Organization>>;
+  status: InstructorStatusType;
   token: Scalars['String']['output'];
 };
 
@@ -187,6 +228,7 @@ export type InstructorResponse = {
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   organizations?: Maybe<Array<Organization>>;
+  status: InstructorStatusType;
   total_approved_courses: Scalars['Float']['output'];
   total_created_courses: Scalars['Float']['output'];
   total_requested_reviews: Scalars['Float']['output'];
@@ -197,6 +239,12 @@ export type InstructorResponseEdge = {
   cursor: Scalars['String']['output'];
   node: InstructorResponse;
 };
+
+/** Instructor status */
+export enum InstructorStatusType {
+  Active = 'ACTIVE',
+  Inactive = 'INACTIVE'
+}
 
 export type Issue = {
   __typename?: 'Issue';
@@ -242,11 +290,19 @@ export type Mutation = {
   createCategory: Category;
   createCheckout: Checkout;
   createCourse: Course;
+  endTest: Test;
+  pauseTest: Test;
   registerAdmin: Admin;
   registerInstructor: Instructor;
   registerOrganization: RegisterResponse;
   registerStudent: RegisterResponse;
+  removeCourseFromCart: Cart;
   requestCourseVersionReview: ReviewRequest;
+  requestStudentPasswordReset: PasswordResetResponse;
+  resetStudentPassword: PasswordResetResponse;
+  resumeTest: Test;
+  startTest: Test;
+  submitAnswer: SubmittedAnswer;
   updateCourse: Course;
   updateIssue: Issue;
   updateQuestion: Question;
@@ -282,6 +338,9 @@ export type MutationAddCoursesToCategoryArgs = {
 
 export type MutationAddQuestionsToCourseVersionArgs = {
   questions: Array<QuestionInput>;
+  suiteDescription: Scalars['String']['input'];
+  suiteKeywords: Array<Scalars['String']['input']>;
+  suiteTitle: Scalars['String']['input'];
   versionId: Scalars['String']['input'];
 };
 
@@ -331,6 +390,16 @@ export type MutationCreateCourseArgs = {
 };
 
 
+export type MutationEndTestArgs = {
+  testId: Scalars['String']['input'];
+};
+
+
+export type MutationPauseTestArgs = {
+  testId: Scalars['String']['input'];
+};
+
+
 export type MutationRegisterAdminArgs = {
   email: Scalars['String']['input'];
   name: Scalars['String']['input'];
@@ -355,13 +424,49 @@ export type MutationRegisterOrganizationArgs = {
 export type MutationRegisterStudentArgs = {
   email: Scalars['String']['input'];
   name: Scalars['String']['input'];
-  organizationId: Scalars['String']['input'];
   password: Scalars['String']['input'];
+};
+
+
+export type MutationRemoveCourseFromCartArgs = {
+  courseId: Scalars['String']['input'];
 };
 
 
 export type MutationRequestCourseVersionReviewArgs = {
   versionId: Scalars['String']['input'];
+};
+
+
+export type MutationRequestStudentPasswordResetArgs = {
+  email: Scalars['String']['input'];
+};
+
+
+export type MutationResetStudentPasswordArgs = {
+  email: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+  token: Scalars['String']['input'];
+};
+
+
+export type MutationResumeTestArgs = {
+  testId: Scalars['String']['input'];
+};
+
+
+export type MutationStartTestArgs = {
+  mode?: InputMaybe<Scalars['String']['input']>;
+  suiteId: Scalars['String']['input'];
+};
+
+
+export type MutationSubmitAnswerArgs = {
+  answer: Scalars['String']['input'];
+  isFlagged: Scalars['Boolean']['input'];
+  questionId: Scalars['String']['input'];
+  testId: Scalars['String']['input'];
+  timeRange: Scalars['String']['input'];
 };
 
 
@@ -397,6 +502,13 @@ export type Organization = {
   students?: Maybe<Array<Student>>;
 };
 
+export type OrganizationConnection = {
+  __typename?: 'OrganizationConnection';
+  count: Scalars['Int']['output'];
+  edges: Array<OrganizationTypeClassEdge>;
+  pageInfo: PageInfo;
+};
+
 export type OrganizationLoginResponse = {
   __typename?: 'OrganizationLoginResponse';
   admins?: Maybe<Array<Admin>>;
@@ -410,6 +522,12 @@ export type OrganizationLoginResponse = {
   requested_reviews?: Maybe<Array<ReviewRequest>>;
   students?: Maybe<Array<Student>>;
   token: Scalars['String']['output'];
+};
+
+export type OrganizationTypeClassEdge = {
+  __typename?: 'OrganizationTypeClassEdge';
+  cursor: Scalars['String']['output'];
+  node: Organization;
 };
 
 export type PageInfo = {
@@ -427,26 +545,46 @@ export type PaginationInput = {
   last?: InputMaybe<Scalars['Int']['input']>;
 };
 
+export type PasswordResetResponse = {
+  __typename?: 'PasswordResetResponse';
+  message: Scalars['String']['output'];
+};
+
 export type Query = {
   __typename?: 'Query';
+  getAllAttemptedQuestions: Array<SubmittedAnswer>;
   getCourse: Course;
   getCourseVersion: VersionResponse;
   getInstructorCourseVersion: VersionResponse;
   getInstructorVersionReview: Review;
+  getOrganizationCourse: StudentCourseResponse;
+  getQuestion: Question;
   getStats: StatsResponse;
+  getSubscribedCourseDetails: Course;
   getVersionReview: Review;
   listAdmins: AdminConnection;
   listAssignedVersions: VersionConnection;
+  listCartCategories: Array<Category>;
+  listCartCourses: Array<Course>;
   listCourses: CourseConnection;
+  listCoursesForOrganization: CourseConnection;
   listInstructorQuestionsForVersion: QuestionConnection;
   listInstructors: InstructorConnection;
   listOrganizationCourses: CourseConnection;
+  listOrganizations: OrganizationConnection;
   listQuestionsForVersion: QuestionConnection;
   listRequestedReviews: RequestedReviewConnection;
   loginAdmin: AdminLoginResponse;
   loginInstructor: InstructorLoginResponse;
   loginOrganization: OrganizationLoginResponse;
   loginStudent: StudentLoginResponse;
+  studentProfile: Student;
+  testStats: Test;
+};
+
+
+export type QueryGetAllAttemptedQuestionsArgs = {
+  testId: Scalars['String']['input'];
 };
 
 
@@ -470,6 +608,21 @@ export type QueryGetInstructorVersionReviewArgs = {
 };
 
 
+export type QueryGetOrganizationCourseArgs = {
+  courseId: Scalars['String']['input'];
+};
+
+
+export type QueryGetQuestionArgs = {
+  testId: Scalars['String']['input'];
+};
+
+
+export type QueryGetSubscribedCourseDetailsArgs = {
+  courseId: Scalars['String']['input'];
+};
+
+
 export type QueryGetVersionReviewArgs = {
   reviewId: Scalars['String']['input'];
 };
@@ -482,6 +635,12 @@ export type QueryListAdminsArgs = {
 
 
 export type QueryListCoursesArgs = {
+  pagination?: InputMaybe<PaginationInput>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryListCoursesForOrganizationArgs = {
   pagination?: InputMaybe<PaginationInput>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
 };
@@ -501,7 +660,14 @@ export type QueryListInstructorsArgs = {
 
 
 export type QueryListOrganizationCoursesArgs = {
-  organizationId: Scalars['String']['input'];
+  filter?: InputMaybe<CourseFilterInput>;
+  organizationId?: InputMaybe<Scalars['String']['input']>;
+  pagination?: InputMaybe<PaginationInput>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryListOrganizationsArgs = {
   pagination?: InputMaybe<PaginationInput>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
 };
@@ -541,6 +707,11 @@ export type QueryLoginOrganizationArgs = {
 export type QueryLoginStudentArgs = {
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
+};
+
+
+export type QueryTestStatsArgs = {
+  testId: Scalars['String']['input'];
 };
 
 export type Question = {
@@ -611,6 +782,12 @@ export type QuestionTypeClassEdge = {
   node: Question;
 };
 
+export type Recommendation = {
+  __typename?: 'Recommendation';
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+};
+
 export type RegisterResponse = {
   __typename?: 'RegisterResponse';
   message: Scalars['String']['output'];
@@ -626,6 +803,7 @@ export type RequestedReviewConnection = {
 export type RequestedReviewFilterInput = {
   adminId?: InputMaybe<Scalars['String']['input']>;
   instructorId?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<VersionStatusType>;
 };
 
 export type Review = {
@@ -700,6 +878,29 @@ export type Student = {
   subscribed_courses?: Maybe<Array<Course>>;
 };
 
+export type StudentCourseResponse = {
+  __typename?: 'StudentCourseResponse';
+  approved_version?: Maybe<Version>;
+  avatar_url: Scalars['String']['output'];
+  categories?: Maybe<Array<Category>>;
+  coupons?: Maybe<Array<Coupon>>;
+  currency: CurrencyType;
+  description: Scalars['String']['output'];
+  domains: Array<DomainType>;
+  id: Scalars['ID']['output'];
+  inserted_at: Scalars['DateTime']['output'];
+  instructor?: Maybe<Instructor>;
+  is_course_in_cart: Scalars['Boolean']['output'];
+  is_subscribed: Scalars['Boolean']['output'];
+  level: LevelType;
+  organization?: Maybe<Organization>;
+  price: Scalars['Float']['output'];
+  subscribed_students?: Maybe<Array<Student>>;
+  title: Scalars['String']['output'];
+  updated_at: Scalars['DateTime']['output'];
+  versions?: Maybe<Array<Version>>;
+};
+
 export type StudentLoginResponse = {
   __typename?: 'StudentLoginResponse';
   cart?: Maybe<Cart>;
@@ -711,6 +912,57 @@ export type StudentLoginResponse = {
   subscribed_categories?: Maybe<Array<Category>>;
   subscribed_courses?: Maybe<Array<Course>>;
   token: Scalars['String']['output'];
+};
+
+export type SubmittedAnswer = {
+  __typename?: 'SubmittedAnswer';
+  answer_provided: Scalars['String']['output'];
+  hints_used: Array<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  is_flagged: Scalars['Boolean']['output'];
+  question?: Maybe<Question>;
+  question_id: Scalars['String']['output'];
+  test?: Maybe<Test>;
+};
+
+/** Suite difficulty */
+export enum SuiteDifficultyType {
+  Advanced = 'ADVANCED',
+  Beginner = 'BEGINNER',
+  Intermediate = 'INTERMEDIATE'
+}
+
+export type Test = {
+  __typename?: 'Test';
+  id: Scalars['ID']['output'];
+  mode: TestModeType;
+  recommendations?: Maybe<Array<Recommendation>>;
+  status: TestStatusType;
+  submitted_answers?: Maybe<Array<SubmittedAnswer>>;
+  test_suite: TestSuite;
+};
+
+/** Test mode */
+export enum TestModeType {
+  Proctured = 'PROCTURED',
+  UnProctured = 'UN_PROCTURED'
+}
+
+/** Test status */
+export enum TestStatusType {
+  Ended = 'ENDED',
+  OnGoing = 'ON_GOING',
+  Paused = 'PAUSED'
+}
+
+export type TestSuite = {
+  __typename?: 'TestSuite';
+  description: Scalars['String']['output'];
+  difficulty: SuiteDifficultyType;
+  id: Scalars['ID']['output'];
+  keywords: Array<Scalars['String']['output']>;
+  questions: Array<Question>;
+  title: Scalars['String']['output'];
 };
 
 export type UpdateCourseInfoInput = {
@@ -732,6 +984,7 @@ export type Version = {
   review_request?: Maybe<ReviewRequest>;
   reviews?: Maybe<Array<Review>>;
   status: VersionStatusType;
+  test_suites?: Maybe<Array<TestSuite>>;
   updated_at: Scalars['DateTime']['output'];
   version_number: Scalars['Float']['output'];
 };
@@ -753,6 +1006,7 @@ export type VersionResponse = {
   review_request?: Maybe<ReviewRequest>;
   reviews: Array<ReviewResponse>;
   status: VersionStatusType;
+  test_suites?: Maybe<Array<TestSuite>>;
   total_questions: Scalars['Float']['output'];
   total_reviews: Scalars['Float']['output'];
   updated_at: Scalars['DateTime']['output'];
@@ -769,6 +1023,7 @@ export type VersionResponseEdge = {
 export enum VersionStatusType {
   Approved = 'APPROVED',
   Archived = 'ARCHIVED',
+  InProgress = 'IN_PROGRESS',
   Pending = 'PENDING',
   Rejected = 'REJECTED'
 }
